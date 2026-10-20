@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مهمة العميلة الرقمية | أنظمة المراقبة والتحكم</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#eef7ff,#f8f3ff);color:#172033}
+.wrap{max-width:1000px;margin:auto;padding:24px}.card{background:#fff;border-radius:28px;padding:28px;box-shadow:0 12px 35px #26324a18}
+h1,h2{margin-top:0}.hero{text-align:center;padding:40px 20px}.hero .icon{font-size:64px}
+button{border:0;border-radius:16px;padding:13px 20px;font-size:17px;font-weight:bold;cursor:pointer;background:#4f46e5;color:#fff;margin:5px}
+button.secondary{background:#e8ecf7;color:#172033}.hidden{display:none}
+.progress{height:12px;background:#e8edf5;border-radius:20px;overflow:hidden;margin:15px 0 25px}.bar{height:100%;width:0;background:#4f46e5;transition:.3s}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.option,.drop{padding:18px;border:2px solid #e1e6f0;border-radius:18px;background:#fafbfe;cursor:pointer;min-height:70px}
+.option:hover,.drop:hover{border-color:#4f46e5}.correct{border-color:#16a34a!important;background:#ecfdf3!important}.wrong{border-color:#dc2626!important;background:#fef2f2!important}
+.feedback{font-weight:bold;min-height:28px;margin:14px 0}.score{font-size:20px;font-weight:bold}
+input{width:100%;padding:15px;border:2px solid #e1e6f0;border-radius:14px;font-size:17px;margin:10px 0}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px}.small{font-size:14px;color:#667085}
+.badge{display:inline-block;padding:7px 12px;border-radius:30px;background:#eef2ff;color:#3730a3;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section id="start" class="card hero">
+<div class="icon">🎯</div>
+<h1>مهمة العميلة الرقمية</h1>
+<h2>أنظمة المراقبة والتحكم</h2>
+<p>أول ثانوي • رحلة تفاعلية لاكتشاف الفرق بين المراقبة والتحكم والمستشعرات.</p>
+<input id="name" placeholder="اكتبي اسم الطالبة">
+<button onclick="startGame()">ابدئي المهمة 🚀</button>
+</section>
+
+<section id="game" class="card hidden">
+<div><span class="badge" id="stage">المرحلة 1</span> <span class="score">النقاط: <span id="score">0</span></span></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div id="content"></div>
+<div class="feedback" id="feedback"></div>
+<div style="text-align:center"><button id="next" class="hidden" onclick="nextStage()">التالي ←</button></div>
+</section>
+
+<section id="end" class="card hero hidden">
+<div class="icon">🏆</div><h1>أحسنتِ!</h1>
+<p id="result"></p>
+<button onclick="location.reload()">إعادة النشاط</button>
+</section>
+</div>
+
+<script>
+let student="",stage=0,score=0;
+const stages=[
+{title:"اكتشفي النظام",type:"mc",q:"أي مثال يُعد من أنظمة المراقبة؟",opts:["كاميرا مراقبة ترسل صورة للمكان","مصباح يعمل بمفتاح","آلة حاسبة","طابعة"],a:0},
+{title:"مراقبة أم تحكم؟",type:"mc",q:"نظام يكتشف درجة الحرارة ويشغّل المكيف تلقائيًا عند ارتفاعها يُعد مثالًا على:",opts:["المراقبة فقط","التحكم","التخزين","الإخراج الورقي"],a:1},
+{title:"اختاري المستشعر",type:"mc",q:"أي مستشعر مناسب لاكتشاف وجود شخص بالقرب من باب؟",opts:["مستشعر الحركة","مستشعر الضوء","مستشعر الحرارة فقط","مستشعر الصوت فقط"],a:0},
+{title:"رتّبي الفكرة",type:"order",q:"رتّبي مراحل عمل نظام التحكم بالترتيب الصحيح:",opts:["المخرجات","المعالجة","المدخلات"],a:[2,1,0]},
+{title:"التحدي النهائي",type:"mc",q:"ما الفرق الأساسي بين نظام المراقبة ونظام التحكم؟",opts:["المراقبة تجمع/تتابع معلومات، والتحكم يتخذ إجراءً بناءً عليها","لا يوجد فرق","التحكم لا يحتاج مدخلات","المراقبة دائمًا تطبع النتائج"],a:0}
+];
+function startGame(){
+ student=document.getElementById('name').value.trim()||"الطالبة";
+ document.getElementById('start').classList.add('hidden');document.getElementById('game').classList.remove('hidden');render();
+}
+function render(){
+ const s=stages[stage],c=document.getElementById('content');
+ document.getElementById('stage').textContent=`المرحلة ${stage+1} من ${stages.length} • ${s.title}`;
+ document.getElementById('score').textContent=score;document.getElementById('bar').style.width=((stage)/stages.length*100)+"%";
+ document.getElementById('feedback').textContent="";document.getElementById('next').classList.add('hidden');
+ if(s.type==="mc"){
+ c.innerHTML=`<h2>${s.q}</h2><div class="grid">${s.opts.map((x,i)=>`<div class="option" onclick="answer(${i})">${x}</div>`).join("")}</div>`;
+ }else{
+ c.innerHTML=`<h2>${s.q}</h2><p class="small">اضغطي على العناصر بالترتيب الصحيح.</p><div id="order" class="grid">${s.opts.map((x,i)=>`<div class="option" onclick="pickOrder(${i})">${x}</div>`).join("")}</div>`;
+ window.ord=[];
+ }
+}
+function answer(i){
+ const s=stages[stage],items=document.querySelectorAll(".option");
+ items.forEach(x=>x.onclick=null);
+ if(i===s.a){score+=20;items[i].classList.add("correct");feedback("إجابة صحيحة! 🌟");}
+ else{items[i].classList.add("wrong");items[s.a].classList.add("correct");feedback("ليست الإجابة الصحيحة. راجعي الخيار المميز بالأخضر.");}
+ document.getElementById('next').classList.remove('hidden');document.getElementById('score').textContent=score;
+}
+function pickOrder(i){
+ window.ord.push(i);event.currentTarget.classList.add("correct");event.currentTarget.style.pointerEvents="none";
+ if(window.ord.length===3){
+  const ok=JSON.stringify(window.ord)===JSON.stringify(stages[stage].a);
+  if(ok){score+=20;feedback("ترتيب ممتاز! 🌟");}else feedback("الترتيب يحتاج مراجعة. الترتيب الصحيح: المدخلات ← المعالجة ← المخرجات.");
+  document.getElementById('score').textContent=score;document.getElementById('next').classList.remove('hidden');
+ }
+}
+function feedback(t){document.getElementById('feedback').textContent=t}
+function nextStage(){
+ stage++;
+ if(stage<stages.length)render();else{
+  document.getElementById('game').classList.add('hidden');document.getElementById('end').classList.remove('hidden');
+  document.getElementById('result').innerHTML=`<strong>${student}</strong>، حصلتِ على <strong>${score} من 100</strong> في مهمة أنظمة المراقبة والتحكم.`;
+ }
+}
+</script>
+</body>
+</html>
